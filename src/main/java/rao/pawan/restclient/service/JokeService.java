@@ -19,4 +19,19 @@ public class JokeService{
                 .build();
     }
 
+    public String getJokeSync(String first, String last) {
+        return template.getForObject(getURL(first, last), JokeResponse.class)
+                .getValue()
+                .getJoke();
+    }
+
+    // Put synchronous blocking call on a dedicated thread
+    public Mono<String> getJokeSyncWrapped(String first, String last) {
+        return Mono.fromCallable(() -> template.getForObject(getURL(first, last), JokeResponse.class))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(jokeResponse -> jokeResponse.getValue()
+                        .getJoke());
+    }
+
+
 }
